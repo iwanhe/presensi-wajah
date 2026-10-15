@@ -1,6 +1,6 @@
 // Service worker: simpan tampilan kiosk dan model wajah di cache tablet.
 // Naikkan VERSION setiap kali file di folder docs berubah.
-const VERSION = 'v2';
+const VERSION = 'v3';
 const SHELL = `presensi-shell-${VERSION}`;
 const CDN = 'presensi-cdn-v1'; // URL CDN memakai versi tetap, jadi aman disimpan lama
 

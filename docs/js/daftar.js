@@ -103,14 +103,16 @@ function refreshButtons() {
 
 // ---------- Kamera ----------
 async function cameraLoop() {
+  const t0 = performance.now();
   try {
-    const f = await readFace(video);
+    const f = await readFace(video, { full: true });
     latest = { f, t: Date.now() };
     $('quality').textContent = qualityText(f);
   } catch (e) {
     console.warn(e);
   }
-  setTimeout(cameraLoop, 350);
+  // jeda adaptif agar tombol tetap responsif di perangkat lambat
+  setTimeout(cameraLoop, Math.min(1500, Math.max(400, (performance.now() - t0) * 1.5)));
 }
 
 function waitForGood(sudut) {

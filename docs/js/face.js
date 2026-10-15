@@ -32,7 +32,9 @@ export async function initFace(onStatus = () => {}) {
   onStatus('Memuat model pengenalan wajah…');
   await human.load();
   onStatus('Menyiapkan…');
-  await human.warmup();
+  // panaskan kedua mode agar deteksi pertama di depan jemaat tidak tersendat
+  await human.warmup(FAST);
+  await human.warmup(FULL);
 }
 
 let stream = null;
@@ -55,16 +57,46 @@ export function stopCamera(video) {
   if (video) video.srcObject = null;
 }
 
+// Dua mode deteksi. Human menggabungkan config ke instance secara permanen,
+// jadi setiap mode menuliskan semua saklar secara eksplisit.
+const FAST = {
+  face: {
+    mesh: { enabled: false },
+    description: { enabled: false },
+    antispoof: { enabled: false },
+    liveness: { enabled: false },
+  },
+};
+const FULL = {
+  face: {
+    mesh: { enabled: true },
+    description: { enabled: true },
+    antispoof: { enabled: true },
+    liveness: { enabled: true },
+  },
+};
+
+export let lastDetectMs = 0;
+
+export function backendName() {
+  try { return human.tf.getBackend(); } catch { return '?'; }
+}
+
 /**
  * Baca satu wajah dari video. Mengembalikan null jika tidak ada wajah.
+ * full=false: hanya deteksi kotak wajah (ringan, untuk menunggu orang mendekat).
+ * full=true : ditambah embedding, anti-spoof, liveness, dan arah wajah (berat).
  * width: lebar kotak wajah relatif terhadap lebar gambar (0..1), dipakai untuk mengukur jarak.
  */
-export async function readFace(video) {
+export async function readFace(video, { full = true } = {}) {
   if (!video || video.readyState < 2) return null;
-  const res = await human.detect(video);
+  const t0 = performance.now();
+  const res = await human.detect(video, full ? FULL : FAST);
+  lastDetectMs = performance.now() - t0;
   const f = res.face && res.face[0];
   if (!f) return null;
   return {
+    full,
     embedding: f.embedding && f.embedding.length ? f.embedding : null,
     score: f.score ?? 0,
     width: f.boxRaw ? f.boxRaw[2] : 0,

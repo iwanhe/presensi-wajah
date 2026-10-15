@@ -127,3 +127,6 @@ body.page { font-size: 17px; }
   body.kiosk { font-size: 20px; }
   .btn.big { font-size: 1.3rem; min-height: 64px; }
 }
+
+/* ?debug=1 di URL kiosk: tampilkan backend dan waktu deteksi */
+.hint[data-debug]::after { content: attr(data-debug); display: block; margin-top: 0.4rem; font-size: 0.8rem; color: var(--muted); }

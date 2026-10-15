@@ -1,11 +1,13 @@
 import { api, getConfig } from './api.js';
-import { initFace, startCamera, stopCamera, readFace, bestMatch } from './face.js';
+import { initFace, startCamera, stopCamera, readFace, bestMatch, lastDetectMs, backendName } from './face.js';
 import { enqueue, startSync } from './queue.js';
 import { searchMembers, memberInfo } from './search.js';
 import { get, set } from 'https://cdn.jsdelivr.net/npm/idb-keyval@6.3.0/+esm';
 
 // ---------- Pengaturan perilaku ----------
-const LOOP_MS = 300;          // jeda antar deteksi (hemat baterai)
+const LOOP_MS = 250;          // jeda minimum antar deteksi ringan
+const IDLE_LOOP_MS = 700;     // jeda saat tidak ada orang (hemat baterai & CPU)
+const FULL_EVERY_MS = 600;    // pengenalan wajah (berat) paling sering tiap 600 ms
 const MISS_MS = 3000;         // wajah tidak dikenali selama ini → buka Cari Nama
 const CONFIRM_MS = 8000;      // konfirmasi batal otomatis
 const SUCCESS_MS = 2200;      // lama pesan "Selamat datang"
@@ -111,22 +113,40 @@ async function boot() {
 }
 
 // ---------- Loop deteksi wajah ----------
+let lastFull = 0;
+let lastSeen = 0;
+const DEBUG = new URLSearchParams(location.search).has('debug');
+
 async function loop() {
+  const t0 = performance.now();
   try {
     if (state === 'scan' && Date.now() > pauseUntil) await tick();
   } catch (e) {
     console.warn(e);
   }
-  setTimeout(loop, LOOP_MS);
+  // Jeda adaptif: beri waktu layar/tombol merespons. Makin lambat perangkat, makin lebar jedanya.
+  const busy = performance.now() - t0;
+  const idle = Date.now() - lastSeen > 5000;
+  const wait = Math.min(1500, Math.max(idle ? IDLE_LOOP_MS : LOOP_MS, busy * 1.5));
+  if (DEBUG) $('scanHint').dataset.debug = `${backendName()} · ${Math.round(lastDetectMs)} ms · jeda ${Math.round(wait)} ms`;
+  setTimeout(loop, wait);
 }
 
 async function tick() {
-  const f = await readFace(video);
-  if (state !== 'scan') return;
   const hint = $('scanHint');
-  if (!f) { missSince = null; hint.textContent = 'Silakan lihat ke kamera'; return; }
-  if (f.width < MIN_FACE_WIDTH) { missSince = null; hint.textContent = 'Mendekat sedikit ke kamera'; return; }
-  if (f.score < MIN_SCORE || !f.embedding) { hint.textContent = 'Tahan sebentar…'; return; }
+  // Tahap 1: deteksi ringan, hanya mencari kotak wajah
+  const quick = await readFace(video, { full: false });
+  if (state !== 'scan') return;
+  if (!quick) { missSince = null; hint.textContent = 'Silakan lihat ke kamera'; return; }
+  lastSeen = Date.now();
+  if (quick.width < MIN_FACE_WIDTH) { missSince = null; hint.textContent = 'Mendekat sedikit ke kamera'; return; }
+  if (Date.now() - lastFull < FULL_EVERY_MS) return;
+
+  // Tahap 2: pengenalan penuh, hanya saat wajah cukup dekat
+  lastFull = Date.now();
+  const f = await readFace(video, { full: true });
+  if (state !== 'scan') return;
+  if (!f || f.score < MIN_SCORE || !f.embedding) { hint.textContent = 'Tahan sebentar…'; return; }
 
   missSince ??= Date.now();
   const genuine = f.real >= MIN_REAL && f.live >= MIN_LIVE;
