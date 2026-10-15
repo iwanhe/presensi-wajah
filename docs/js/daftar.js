@@ -20,6 +20,8 @@ let ready = false;
 
 const setStatus = (t) => { $('status').textContent = t; };
 const setMsg = (t) => { $('msg').textContent = t; };
+const refreshStatus = () =>
+  setStatus(`${members.size} jemaat aktif · ${new Set(faceOwner).size} sudah terdaftar wajah`);
 
 function goodFor(f, sudut) {
   if (!f || !f.embedding) return false;
@@ -47,8 +49,7 @@ async function load() {
   members = new Map(d.members.map((m) => [m.id, m]));
   faceDb = d.faces.map((f) => f.embedding);
   faceOwner = d.faces.map((f) => f.id);
-  const withFace = new Set(faceOwner).size;
-  setStatus(`${members.size} jemaat aktif · ${withFace} sudah terdaftar wajah`);
+  refreshStatus();
   return true;
 }
 
@@ -164,6 +165,7 @@ $('btnSave').onclick = async () => {
     await api('enroll', { idJemaat: picked.id, petugas: cfg.deviceId, samples: list }, { enroll: true });
     for (const s of list) { faceDb.push(s.embedding); faceOwner.push(picked.id); }
     samples = {};
+    refreshStatus();
     pick(picked);
     setMsg(`Tersimpan untuk ${picked.nama}. Tekan "Uji kenali" atau minta mencoba di kiosk.`);
   } catch (e) {
@@ -193,6 +195,7 @@ $('btnDelete').onclick = async () => {
     const keep = faceOwner.map((o, i) => o !== picked.id ? i : -1).filter((i) => i >= 0);
     faceDb = keep.map((i) => faceDb[i]);
     faceOwner = keep.map((i) => faceOwner[i]);
+    refreshStatus();
     pick(picked);
     setMsg(`${r.deleted} sampel dihapus. Ubah juga consent_wajah menjadi N di Google Sheet.`);
   } catch (e) {
@@ -207,7 +210,7 @@ $('btnDelete').onclick = async () => {
     setStatus($('status').textContent + ' · memuat model…');
     await Promise.all([initFace(), startCamera(video)]);
     ready = true;
-    setStatus($('status').textContent.replace(' · memuat model…', ''));
+    refreshStatus();
     refreshButtons();
     cameraLoop();
   } catch (e) {
