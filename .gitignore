@@ -1,0 +1,12 @@
+# clasp (berisi Script ID akun yang sedang dipakai)
+.clasp.json
+.clasprc.json
+
+# data pribadi jemaat — jangan pernah di-commit
+data/
+*.xlsx
+*.csv
+
+node_modules/
+.DS_Store
+Thumbs.db

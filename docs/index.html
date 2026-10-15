@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="theme-color" content="#1f4e78">
+  <title>Presensi Kegiatan</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="kiosk">
+  <header class="bar">
+    <div>
+      <h1 id="eventName">Presensi</h1>
+      <p id="eventDate" class="muted"></p>
+    </div>
+    <div class="bar-right">
+      <span id="clock" class="clock"></span>
+      <span id="queueBadge" class="badge" hidden></span>
+    </div>
+  </header>
+
+  <main>
+    <!-- Kamera selalu terpasang; layar lain tampil di atasnya -->
+    <section id="scr-scan" class="screen" hidden>
+      <div class="cam">
+        <video id="camera" playsinline muted autoplay></video>
+        <div class="oval"></div>
+      </div>
+      <p id="scanHint" class="hint">Silakan lihat ke kamera</p>
+      <div class="actions">
+        <button id="btnSearch" class="btn big">Cari Nama</button>
+        <button id="btnQr" class="btn big ghost">Scan QR</button>
+      </div>
+    </section>
+
+    <section id="scr-loading" class="screen center">
+      <div class="spinner"></div>
+      <p id="loadMsg" class="hint">Memuat…</p>
+    </section>
+
+    <section id="scr-error" class="screen center" hidden>
+      <p id="errMsg" class="hint"></p>
+      <div class="actions">
+        <button id="btnRetry" class="btn big">Coba lagi</button>
+        <a href="setup.html" class="btn ghost">Pengaturan</a>
+      </div>
+    </section>
+
+    <section id="scr-confirm" class="screen center overlay" hidden>
+      <p class="q">Apakah Anda</p>
+      <h2 id="cNama" class="name"></h2>
+      <p id="cInfo" class="muted"></p>
+      <div class="actions">
+        <button id="btnYes" class="btn big primary">Ya, saya</button>
+        <button id="btnNo" class="btn big ghost">Bukan</button>
+      </div>
+    </section>
+
+    <section id="scr-search" class="screen overlay" hidden>
+      <label for="q" class="q">Ketik nama, atau tanggal lahir 6 angka (contoh 150862)</label>
+      <input id="q" class="search" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="Nama / DDMMYY">
+      <div id="keypad" class="keypad"></div>
+      <ul id="results" class="results"></ul>
+      <div class="actions">
+        <button id="btnSearchBack" class="btn ghost">Kembali</button>
+        <button id="btnGuest" class="btn ghost">Saya tidak terdaftar</button>
+      </div>
+    </section>
+
+    <section id="scr-guest" class="screen overlay" hidden>
+      <label for="guestName" class="q">Nama lengkap</label>
+      <input id="guestName" class="search" autocomplete="off" autocapitalize="words" placeholder="Nama tamu">
+      <p class="muted">Sekretariat akan menghubungi Anda untuk pendataan jemaat.</p>
+      <div class="actions">
+        <button id="btnGuestSave" class="btn big primary">Simpan</button>
+        <button id="btnGuestBack" class="btn ghost">Kembali</button>
+      </div>
+    </section>
+
+    <section id="scr-qr" class="screen overlay" hidden>
+      <p class="q">Arahkan QR ke kamera</p>
+      <div id="qrReader" class="qr"></div>
+      <div class="actions"><button id="btnQrBack" class="btn ghost">Kembali</button></div>
+    </section>
+
+    <section id="scr-success" class="screen center overlay" hidden>
+      <div class="check">✓</div>
+      <h2 id="sMsg" class="name"></h2>
+      <p id="sSub" class="muted"></p>
+    </section>
+  </main>
+
+  <script type="module" src="js/kiosk.js"></script>
+  <script type="module" src="js/pwa.js"></script>
+</body>
+</html>

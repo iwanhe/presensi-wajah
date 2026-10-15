@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1f4e78">
+  <meta name="robots" content="noindex">
+  <title>Pengaturan Tablet</title>
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="page">
+  <main class="form">
+    <h1>Pengaturan tablet</h1>
+    <p class="muted">Diisi petugas sekali per tablet. Data disimpan hanya di tablet ini.</p>
+
+    <form id="f">
+      <label>URL API (Apps Script, berakhiran /exec)
+        <input name="apiUrl" type="url" required placeholder="https://script.google.com/macros/s/…/exec">
+      </label>
+      <label>Token kiosk (API_TOKEN)
+        <input name="token" type="password" autocomplete="off" required>
+      </label>
+      <label>Token pendaftaran wajah (ENROLL_TOKEN) — isi hanya di perangkat petugas
+        <input name="enrollToken" type="password" autocomplete="off">
+      </label>
+      <label>Nama perangkat
+        <input name="deviceId" required placeholder="TAB-01">
+      </label>
+      <label>Ambang kemiripan wajah (threshold)
+        <input name="threshold" type="number" min="0.3" max="0.9" step="0.01" value="0.55">
+      </label>
+      <div class="actions left">
+        <button class="btn primary" type="submit">Simpan</button>
+        <button class="btn ghost" type="button" id="btnTest">Tes koneksi</button>
+      </div>
+      <p id="msg" class="hint small"></p>
+    </form>
+
+    <h2>Statistik tablet ini</h2>
+    <p class="muted small">Dipakai untuk menyetel threshold saat pilot. Banyak "Bukan" → naikkan threshold 0,05.</p>
+    <table class="stats">
+      <tr><td>Konfirmasi lewat wajah</td><td id="stWajah">0</td></tr>
+      <tr><td>Ditolak ("Bukan")</td><td id="stBukan">0</td></tr>
+      <tr><td>Salah kenali</td><td id="stRate">-</td></tr>
+      <tr><td>Presensi belum terkirim</td><td id="stQueue">0</td></tr>
+    </table>
+    <div class="actions left">
+      <button class="btn ghost" type="button" id="btnResetStats">Reset statistik</button>
+      <button class="btn ghost" type="button" id="btnFlush">Kirim antrean sekarang</button>
+    </div>
+
+    <h2>Buka</h2>
+    <div class="actions left">
+      <a class="btn primary" href="index.html">Kiosk presensi</a>
+      <a class="btn ghost" href="daftar.html">Pendaftaran wajah</a>
+    </div>
+  </main>
+  <script type="module" src="js/setup.js"></script>
+</body>
+</html>

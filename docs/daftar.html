@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1f4e78">
+  <meta name="robots" content="noindex">
+  <title>Pendaftaran Wajah</title>
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="page">
+  <main class="enroll">
+    <header class="row">
+      <h1>Pendaftaran wajah</h1>
+      <a class="btn ghost" href="setup.html">Pengaturan</a>
+    </header>
+    <p id="status" class="hint small">Memuat…</p>
+
+    <div class="grid">
+      <section>
+        <label for="q" class="q">1. Cari jemaat (nama atau DDMMYY)</label>
+        <input id="q" class="search" autocomplete="off" placeholder="Nama / DDMMYY">
+        <ul id="results" class="results"></ul>
+
+        <div id="picked" class="card" hidden>
+          <h2 id="pNama" class="name"></h2>
+          <p id="pInfo" class="muted"></p>
+          <p id="pFaces" class="small"></p>
+          <p id="pConsent" class="warn" hidden>Belum ada persetujuan data wajah (consent_wajah ≠ Y). Pendaftaran dikunci.</p>
+          <button id="btnDelete" class="btn ghost danger" hidden>Hapus semua data wajah jemaat ini</button>
+        </div>
+
+        <div class="tips small">
+          <strong>Tips:</strong> lepas masker dan topi (kacamata boleh), wajah menghadap cahaya,
+          jarak 50–70 cm, lakukan di lokasi yang sama dengan kiosk.
+        </div>
+      </section>
+
+      <section>
+        <p class="q">2. Ambil 3 sampel</p>
+        <div class="cam small-cam">
+          <video id="camera" playsinline muted autoplay></video>
+          <div class="oval"></div>
+        </div>
+        <p id="quality" class="hint small">Kamera belum siap</p>
+        <div class="samples">
+          <button class="btn sample" data-sudut="depan" disabled>Depan <span>○</span></button>
+          <button class="btn sample" data-sudut="kiri" disabled>Agak kiri <span>○</span></button>
+          <button class="btn sample" data-sudut="kanan" disabled>Agak kanan <span>○</span></button>
+        </div>
+        <div class="actions left">
+          <button id="btnSave" class="btn primary" disabled>3. Simpan</button>
+          <button id="btnTest" class="btn ghost" disabled>Uji kenali</button>
+        </div>
+        <p id="msg" class="hint small"></p>
+      </section>
+    </div>
+  </main>
+  <script type="module" src="js/daftar.js"></script>
+</body>
+</html>
